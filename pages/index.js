@@ -9,7 +9,7 @@ export async function getServerSideProps() {
 export default function Home({ serverTime }) {
   return (
     <div>
-      <h1>KickVM SSR Test (Tommy Tester)</h1>
+      <h1>KickVM SSR Test (Tommy Tester) - redeploy-check-v2</h1>
       <p>This page is server-rendered on every request.</p>
       <p id="server-time">Server time: {serverTime}</p>
     </div>
