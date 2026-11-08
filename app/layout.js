@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "KickVM DB E2E Test",
+  title: "KickVM DB E2E Test (redeploy check)",
 };
 
 export default function RootLayout({ children }) {
