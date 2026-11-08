@@ -11,31 +11,28 @@ async function loadData() {
     return { ok: false, error: info.error || "no DATABASE_URL available", source: info.source };
   }
 
-  const client = await pool.connect();
   try {
-    await ensureTable(client);
+    await ensureTable(pool);
     const requestedAt = new Date().toISOString();
-    const inserted = await client.query(
-      "INSERT INTO db_test_rows (note) VALUES ($1) RETURNING id, created_at",
-      [`request at ${requestedAt}`],
-    );
-    const countRes = await client.query("SELECT count(*)::int AS n FROM db_test_rows");
-    const recentRes = await client.query(
-      "SELECT id, created_at, note FROM db_test_rows ORDER BY id DESC LIMIT 10",
-    );
+    const inserted = await pool`
+      INSERT INTO db_test_rows (note) VALUES (${`request at ${requestedAt}`})
+      RETURNING id, created_at
+    `;
+    const countRes = await pool`SELECT count(*)::int AS n FROM db_test_rows`;
+    const recentRes = await pool`
+      SELECT id, created_at, note FROM db_test_rows ORDER BY id DESC LIMIT 10
+    `;
     return {
       ok: true,
       source: info.source,
       maskedUrl: maskDatabaseUrl(info.url),
-      insertedId: inserted.rows[0].id,
-      insertedAt: inserted.rows[0].created_at,
-      totalRows: countRes.rows[0].n,
-      recent: recentRes.rows,
+      insertedId: inserted[0].id,
+      insertedAt: inserted[0].created_at,
+      totalRows: countRes[0].n,
+      recent: recentRes,
     };
   } catch (err) {
     return { ok: false, error: err.message, source: info.source };
-  } finally {
-    client.release();
   }
 }
 
